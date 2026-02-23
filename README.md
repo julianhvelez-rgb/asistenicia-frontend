@@ -67,4 +67,22 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 ### `npm run build` fails to minify
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify]
+
+# Frontend - Control de Asistencia
+
+Este frontend utiliza React.
+
+## Scripts
+
+- `npm start`: Inicia el servidor de desarrollo.
+- `npm run build`: Genera archivos estáticos para producción.
+
+## Instalación
+
+1. Ve a la carpeta `frontend/asistencia-frontend`.
+2. Ejecuta `npm install` para instalar dependencias.
+
+## Ejecución
+
+Ejecuta `npm start` para iniciar el frontend.

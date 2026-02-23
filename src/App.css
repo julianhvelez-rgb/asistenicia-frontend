@@ -1,5 +1,91 @@
+
+
 .App {
-  text-align: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #4f8cff 0%, #a1eafb 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  padding-top: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+
+
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  padding: 32px 24px;
+  margin: 24px 0;
+  width: 100%;
+  max-width: 480px;
+}
+
+.App h2, .App h3, .App h4 {
+  color: #2d3a4a;
+  margin-bottom: 24px;
+}
+
+.App input[type="text"],
+.App input[type="date"],
+.App input[type="time"],
+.App select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #b0c4de;
+  margin: 8px 0;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.App input:focus, .App select:focus {
+  border-color: #4f8cff;
+}
+
+.App button {
+  background: linear-gradient(90deg, #4f8cff 0%, #a1eafb 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 8px 0;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(79,140,255,0.15);
+  transition: background 0.2s, transform 0.2s;
+}
+.App button:hover {
+  background: linear-gradient(90deg, #3a6edc 0%, #7fd8e6 100%);
+  transform: translateY(-2px);
+}
+
+.App ul {
+  padding: 0;
+  margin: 0;
+}
+.App li {
+  background: #f7fafd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.App label {
+  font-size: 15px;
+  color: #2d3a4a;
+}
+.App .error {
+  color: #e74c3c;
+  margin-bottom: 16px;
 }
 
 .App-logo {
