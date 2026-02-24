@@ -1,15 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { addToOfflineQueue, setupSyncOnReconnect } from './offlineSync';
 import GrupoDetalle from './GrupoDetalle';
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
 
 function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
+  useEffect(() => {
+    setupSyncOnReconnect();
+  }, []);
   const [grupoDetalle, setGrupoDetalle] = useState(null);
   const [estudiantesPorGrupo, setEstudiantesPorGrupo] = useState({});
 
   // Inscribir estudiante en backend
   const inscribirEstudiante = async (grupoId, estudiante) => {
+    if (!navigator.onLine) {
+      addToOfflineQueue({
+        url: `http://localhost:3001/grupos/${grupoId}/estudiantes`,
+        options: {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(estudiante)
+        }
+      });
+      setEstudiantesPorGrupo(prev => {
+        const lista = prev[grupoId] || [];
+        return { ...prev, [grupoId]: [...lista, { ...estudiante, id: Date.now() }] };
+      });
+      alert('Inscripción guardada offline. Se sincronizará cuando vuelva la conexión.');
+      return;
+    }
     try {
       const res = await fetch(`http://localhost:3001/grupos/${grupoId}/estudiantes`, {
         method: 'POST',
@@ -43,6 +63,18 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
 
   // Marcar asistencia en backend (sí/no)
   const marcarAsistencia = async (grupoId, estudianteId, asistio) => {
+    if (!navigator.onLine) {
+      addToOfflineQueue({
+        url: `http://localhost:3001/grupos/${grupoId}/asistencia`,
+        options: {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estudianteId, asistio })
+        }
+      });
+      alert('Asistencia guardada offline. Se sincronizará cuando vuelva la conexión.');
+      return;
+    }
     try {
       const res = await fetch(`http://localhost:3001/grupos/${grupoId}/asistencia`, {
         method: 'POST',

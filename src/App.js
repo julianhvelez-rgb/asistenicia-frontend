@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { addToOfflineQueue, setupSyncOnReconnect } from './offlineSync';
 import GestionGrupos from './GestionGrupos';
 import ReporteAsistencia from './ReporteAsistencia';
 import './App.css';
 
 function App() {
+  useEffect(() => {
+    setupSyncOnReconnect();
+  }, []);
   const [pantalla, setPantalla] = useState('menu');
   const [grupos, setGrupos] = useState([]);
   const [error, setError] = useState('');
@@ -12,8 +16,21 @@ function App() {
   // Funciones para gestión de grupos
   const crearGrupo = async (grupo) => {
     // grupo: { nombre, dias, horaInicio, horaFin }
+    if (!navigator.onLine) {
+      addToOfflineQueue({
+        url: 'http://localhost:3001/grupos',
+        options: {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(grupo)
+        }
+      });
+      setGrupos([...grupos, { ...grupo, id: grupoId }]);
+      setGrupoId((prev) => prev + 1);
+      setError('Guardado en modo offline. Se sincronizará cuando vuelva la conexión.');
+      return;
+    }
     try {
-      // Guardar en backend
       const res = await fetch('http://localhost:3001/grupos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -29,8 +46,20 @@ function App() {
   };
 
   const editarGrupo = async (id, grupoEditado) => {
+    if (!navigator.onLine) {
+      addToOfflineQueue({
+        url: `http://localhost:3001/grupos/${id}`,
+        options: {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(grupoEditado)
+        }
+      });
+      setGrupos(grupos.map(g => g.id === id ? { ...g, ...grupoEditado } : g));
+      setError('Editado en modo offline. Se sincronizará cuando vuelva la conexión.');
+      return;
+    }
     try {
-      // Actualizar en backend
       const res = await fetch(`http://localhost:3001/grupos/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -43,8 +72,18 @@ function App() {
     }
   };
   const eliminarGrupo = async (id) => {
+    if (!navigator.onLine) {
+      addToOfflineQueue({
+        url: `http://localhost:3001/grupos/${id}`,
+        options: {
+          method: 'DELETE'
+        }
+      });
+      setGrupos(grupos.filter(g => g.id !== id));
+      setError('Eliminado en modo offline. Se sincronizará cuando vuelva la conexión.');
+      return;
+    }
     try {
-      // Eliminar en backend
       const res = await fetch(`http://localhost:3001/grupos/${id}`, {
         method: 'DELETE'
       });
