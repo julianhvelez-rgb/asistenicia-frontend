@@ -76,17 +76,7 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
 
   // Marcar asistencia en backend (sí/no)
   // Persistencia offline de asistencia
-  const asistenciaStorageKey = 'asistencia_asistencia_offline';
-  const getPersistedAsistencia = () => {
-    try {
-      const data = JSON.parse(localStorage.getItem(asistenciaStorageKey));
-      return data || {};
-    } catch {
-      return {};
-    }
-  };
-  // ...existing code...
-
+  // Eliminar persistencia y lógica de asistencia offline defectuosa para evitar errores
   const marcarAsistencia = async (grupoId, estudianteId, asistio) => {
     if (!navigator.onLine) {
       addToOfflineQueue({
@@ -97,21 +87,7 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
           body: JSON.stringify({ estudianteId, asistio })
         }
       });
-      setAsistenciaPorGrupo(prev => {
-        const grupo = prev[grupoId] || {};
-        const estudiante = grupo[estudianteId] || [];
-        const fechaHoy = new Date();
-        const fechaStr = fechaHoy.toISOString().split('T')[0];
-        const nuevos = {
-          ...prev,
-          [grupoId]: {
-            ...grupo,
-            [estudianteId]: [...estudiante, { asistio, fecha: fechaStr }]
-          }
-        };
-        localStorage.setItem(asistenciaStorageKey, JSON.stringify(nuevos));
-        return nuevos;
-      });
+      // No guardar nada en local, solo encola para sincronizar
       return;
     }
     try {
