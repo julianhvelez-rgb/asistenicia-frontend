@@ -10,7 +10,17 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
     setupSyncOnReconnect();
   }, []);
   const [grupoDetalle, setGrupoDetalle] = useState(null);
-  const [estudiantesPorGrupo, setEstudiantesPorGrupo] = useState({});
+  // Persistencia offline de estudiantes
+  const estudiantesStorageKey = 'asistencia_estudiantes_offline';
+  const getPersistedEstudiantes = () => {
+    try {
+      const data = JSON.parse(localStorage.getItem(estudiantesStorageKey));
+      return data || {};
+    } catch {
+      return {};
+    }
+  };
+  const [estudiantesPorGrupo, setEstudiantesPorGrupo] = useState(navigator.onLine ? {} : getPersistedEstudiantes());
 
   // Inscribir estudiante en backend
   const inscribirEstudiante = async (grupoId, estudiante) => {
@@ -25,9 +35,10 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
       });
       setEstudiantesPorGrupo(prev => {
         const lista = prev[grupoId] || [];
-        return { ...prev, [grupoId]: [...lista, { ...estudiante, id: Date.now() }] };
+        const nuevos = { ...prev, [grupoId]: [...lista, { ...estudiante, id: Date.now() }] };
+        localStorage.setItem(estudiantesStorageKey, JSON.stringify(nuevos));
+        return nuevos;
       });
-      alert('Inscripción guardada offline. Se sincronizará cuando vuelva la conexión.');
       return;
     }
     try {
@@ -40,10 +51,12 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
       const data = await res.json();
       setEstudiantesPorGrupo(prev => {
         const lista = prev[grupoId] || [];
-        return { ...prev, [grupoId]: [...lista, data.estudiante] };
+        const nuevos = { ...prev, [grupoId]: [...lista, data.estudiante] };
+        localStorage.setItem(estudiantesStorageKey, JSON.stringify(nuevos));
+        return nuevos;
       });
     } catch (err) {
-      alert('Error al inscribir: ' + err.message);
+      // No mostrar mensaje
     }
   };
 
@@ -62,6 +75,18 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
   };
 
   // Marcar asistencia en backend (sí/no)
+  // Persistencia offline de asistencia
+  const asistenciaStorageKey = 'asistencia_asistencia_offline';
+  const getPersistedAsistencia = () => {
+    try {
+      const data = JSON.parse(localStorage.getItem(asistenciaStorageKey));
+      return data || {};
+    } catch {
+      return {};
+    }
+  };
+  const [asistenciaPorGrupo, setAsistenciaPorGrupo] = useState(navigator.onLine ? {} : getPersistedAsistencia());
+
   const marcarAsistencia = async (grupoId, estudianteId, asistio) => {
     if (!navigator.onLine) {
       addToOfflineQueue({
@@ -72,7 +97,21 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
           body: JSON.stringify({ estudianteId, asistio })
         }
       });
-      alert('Asistencia guardada offline. Se sincronizará cuando vuelva la conexión.');
+      setAsistenciaPorGrupo(prev => {
+        const grupo = prev[grupoId] || {};
+        const estudiante = grupo[estudianteId] || [];
+        const fechaHoy = new Date();
+        const fechaStr = fechaHoy.toISOString().split('T')[0];
+        const nuevos = {
+          ...prev,
+          [grupoId]: {
+            ...grupo,
+            [estudianteId]: [...estudiante, { asistio, fecha: fechaStr }]
+          }
+        };
+        localStorage.setItem(asistenciaStorageKey, JSON.stringify(nuevos));
+        return nuevos;
+      });
       return;
     }
     try {
@@ -84,7 +123,7 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
       if (!res.ok) throw new Error('No se pudo marcar asistencia');
       // No mostrar mensaje
     } catch (err) {
-      alert('Error al marcar asistencia: ' + err.message);
+      // No mostrar mensaje
     }
   };
 
