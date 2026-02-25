@@ -144,6 +144,8 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
   };
 
   const handleCrear = () => {
+    // Log para depuración móvil
+    console.log('handleCrear llamado', { nombre, dias, horaInicio, horaFin });
     if (!nombre.trim()) {
       alert('El nombre es obligatorio');
       return;
@@ -247,7 +249,7 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
             />
           </label>
         </div>
-        <button onClick={handleCrear}>Crear</button>
+        <button onClick={handleCrear} type="button">Crear</button>
       </div>
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {grupos.map(grupo => (
