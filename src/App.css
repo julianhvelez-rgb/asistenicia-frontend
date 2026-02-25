@@ -1,3 +1,43 @@
+@media (max-width: 480px) {
+  .App {
+    padding-top: 4px;
+    min-height: 100vh;
+    font-size: 14px;
+  }
+  .card {
+    max-width: 100vw;
+    padding: 4px 2px;
+    margin: 4px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .App h2, .App h3, .App h4 {
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+  .App button {
+    width: 99vw;
+    height: 36px;
+    font-size: 14px;
+    padding: 8px 4px;
+    border-radius: 6px;
+  }
+  .App input[type="text"],
+  .App input[type="date"],
+  .App input[type="time"],
+  .App select {
+    font-size: 14px;
+    padding: 6px;
+    border-radius: 6px;
+  }
+  .App li {
+    padding: 4px 2px;
+    font-size: 12px;
+    border-radius: 6px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 /* Responsive design for tablets and phones */
 @media (max-width: 900px) {
   .App {
