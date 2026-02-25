@@ -9,7 +9,17 @@ function App() {
     setupSyncOnReconnect();
   }, []);
   const [pantalla, setPantalla] = useState('menu');
-  const [grupos, setGrupos] = useState([]);
+  // Persistencia offline de grupos
+  const gruposStorageKey = 'asistencia_grupos_offline';
+  const getPersistedGrupos = () => {
+    try {
+      const data = JSON.parse(localStorage.getItem(gruposStorageKey));
+      return data || [];
+    } catch {
+      return [];
+    }
+  };
+  const [grupos, setGrupos] = useState(navigator.onLine ? [] : getPersistedGrupos());
   const [error, setError] = useState('');
   const [grupoId, setGrupoId] = useState(1);
 
@@ -17,6 +27,7 @@ function App() {
   const crearGrupo = async (grupo) => {
     // grupo: { nombre, dias, horaInicio, horaFin }
     if (!navigator.onLine) {
+      // Guardar grupo localmente y en cola de sincronización
       addToOfflineQueue({
         url: 'http://localhost:3001/grupos',
         options: {
@@ -25,9 +36,12 @@ function App() {
           body: JSON.stringify(grupo)
         }
       });
-      setGrupos([...grupos, { ...grupo, id: grupoId }]);
+      const nuevoGrupo = { ...grupo, id: grupoId };
+      const nuevosGrupos = [...grupos, nuevoGrupo];
+      setGrupos(nuevosGrupos);
+      localStorage.setItem(gruposStorageKey, JSON.stringify(nuevosGrupos));
       setGrupoId((prev) => prev + 1);
-      setError('Guardado en modo offline. Se sincronizará cuando vuelva la conexión.');
+      setError(''); // No mostrar error ni mensaje
       return;
     }
     try {
@@ -38,10 +52,19 @@ function App() {
       });
       if (!res.ok) throw new Error('No se pudo guardar el grupo');
       const data = await res.json();
-      setGrupos([...grupos, { ...grupo, id: data.id || grupoId }]);
+      const nuevoGrupo = { ...grupo, id: data.id || grupoId };
+      const nuevosGrupos = [...grupos, nuevoGrupo];
+      setGrupos(nuevosGrupos);
+      localStorage.setItem(gruposStorageKey, JSON.stringify(nuevosGrupos));
       setGrupoId((prev) => (data.id ? Math.max(prev, data.id + 1) : prev + 1));
     } catch (err) {
-      setError('Error al guardar grupo: ' + err.message);
+      // Si falla el backend, guardar localmente sin mostrar error
+      const nuevoGrupo = { ...grupo, id: grupoId };
+      const nuevosGrupos = [...grupos, nuevoGrupo];
+      setGrupos(nuevosGrupos);
+      localStorage.setItem(gruposStorageKey, JSON.stringify(nuevosGrupos));
+      setGrupoId((prev) => prev + 1);
+      setError('');
     }
   };
 
