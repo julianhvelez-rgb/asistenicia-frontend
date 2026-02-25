@@ -85,7 +85,7 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
       return {};
     }
   };
-  const [asistenciaPorGrupo, setAsistenciaPorGrupo] = useState(navigator.onLine ? {} : getPersistedAsistencia());
+  // ...existing code...
 
   const marcarAsistencia = async (grupoId, estudianteId, asistio) => {
     if (!navigator.onLine) {
