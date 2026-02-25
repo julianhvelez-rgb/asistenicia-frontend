@@ -58,7 +58,7 @@ function App() {
       localStorage.setItem(gruposStorageKey, JSON.stringify(nuevosGrupos));
       setGrupoId((prev) => (data.id ? Math.max(prev, data.id + 1) : prev + 1));
     } catch (err) {
-      // Si falla el backend, guardar localmente sin mostrar error
+      // Guardar localmente siempre que falle la petición, sin mostrar error
       const nuevoGrupo = { ...grupo, id: grupoId };
       const nuevosGrupos = [...grupos, nuevoGrupo];
       setGrupos(nuevosGrupos);
