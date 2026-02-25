@@ -1,17 +1,7 @@
 import React, { useState } from 'react';
 
 function GrupoDetalle({ grupo, estudiantes, onInscribir, onMarcarAsistencia, onVolver }) {
-    // Formateo automático de fecha dd/mm/aaaa
-    const handleFechaNacimientoChange = (e) => {
-      let value = e.target.value.replace(/[^0-9]/g, '');
-      if (value.length > 2 && value[2] !== '/') {
-        value = value.slice(0,2) + '/' + value.slice(2);
-      }
-      if (value.length > 5 && value[5] !== '/') {
-        value = value.slice(0,5) + '/' + value.slice(5);
-      }
-      setFechaNacimiento(value);
-    };
+    // ...existing code...
   // Persistencia en localStorage
   const storageKey = `inscripcion_${grupo.id}`;
   const getPersisted = () => {
