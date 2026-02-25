@@ -41,49 +41,68 @@ function App() {
   // Funciones para gestión de grupos
   const crearGrupo = async (grupo) => {
     // Siempre crear el grupo localmente y actualizar la UI inmediatamente
-    const nuevoGrupo = { ...grupo, id: grupoId };
-    // Leer los grupos actuales desde localStorage para evitar sobrescribir si hay varias pestañas o apps abiertas
-    let gruposActuales = [];
     try {
-      gruposActuales = JSON.parse(localStorage.getItem(gruposStorageKey)) || [];
-    } catch { gruposActuales = []; }
-    const nuevosGrupos = [...gruposActuales, nuevoGrupo];
-    setGrupos(nuevosGrupos);
-    localStorage.setItem(gruposStorageKey, JSON.stringify(nuevosGrupos));
-    setGrupoId((prev) => prev + 1);
-    setError(''); // No mostrar error ni mensaje
-
-    // Intentar sincronizar con el backend en segundo plano
-    const syncAction = {
-      url: 'http://localhost:3001/grupos',
-      options: {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(grupo)
+      const nuevoGrupo = { ...grupo, id: grupoId };
+      // Leer los grupos actuales desde localStorage para evitar sobrescribir si hay varias pestañas o apps abiertas
+      let gruposActuales = [];
+      try {
+        gruposActuales = JSON.parse(localStorage.getItem(gruposStorageKey)) || [];
+      } catch (e) {
+        gruposActuales = [];
+        alert('Error leyendo localStorage: ' + e.message);
+        console.error('Error leyendo localStorage', e);
       }
-    };
-    if (!navigator.onLine) {
-      addToOfflineQueue(syncAction);
-      return;
-    }
-    try {
-      const res = await fetch(syncAction.url, syncAction.options);
-      if (res.ok) {
-        const data = await res.json();
-        // Si el backend devuelve un id diferente, actualizar el grupo en localStorage y estado
-        if (data.id && data.id !== nuevoGrupo.id) {
-          const gruposActualizados = nuevosGrupos.map(g => g.id === nuevoGrupo.id ? { ...g, id: data.id } : g);
-          setGrupos(gruposActualizados);
-          localStorage.setItem(gruposStorageKey, JSON.stringify(gruposActualizados));
-          setGrupoId((prev) => Math.max(prev, data.id + 1));
+      const nuevosGrupos = [...gruposActuales, nuevoGrupo];
+      setGrupos(nuevosGrupos);
+      try {
+        localStorage.setItem(gruposStorageKey, JSON.stringify(nuevosGrupos));
+      } catch (e) {
+        alert('Error guardando en localStorage: ' + e.message);
+        console.error('Error guardando en localStorage', e);
+      }
+      setGrupoId((prev) => prev + 1);
+      setError(''); // No mostrar error ni mensaje
+
+      // Intentar sincronizar con el backend en segundo plano
+      const syncAction = {
+        url: 'http://localhost:3001/grupos',
+        options: {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(grupo)
         }
-      } else {
-        // Si falla la petición, guardar en cola offline
+      };
+      if (!navigator.onLine) {
+        addToOfflineQueue(syncAction);
+        return;
+      }
+      try {
+        const res = await fetch(syncAction.url, syncAction.options);
+        if (res.ok) {
+          const data = await res.json();
+          // Si el backend devuelve un id diferente, actualizar el grupo en localStorage y estado
+          if (data.id && data.id !== nuevoGrupo.id) {
+            const gruposActualizados = nuevosGrupos.map(g => g.id === nuevoGrupo.id ? { ...g, id: data.id } : g);
+            setGrupos(gruposActualizados);
+            try {
+              localStorage.setItem(gruposStorageKey, JSON.stringify(gruposActualizados));
+            } catch (e) {
+              alert('Error actualizando localStorage: ' + e.message);
+              console.error('Error actualizando localStorage', e);
+            }
+            setGrupoId((prev) => Math.max(prev, data.id + 1));
+          }
+        } else {
+          // Si falla la petición, guardar en cola offline
+          addToOfflineQueue(syncAction);
+        }
+      } catch (err) {
+        // Si hay error de red, guardar en cola offline
         addToOfflineQueue(syncAction);
       }
-    } catch (err) {
-      // Si hay error de red, guardar en cola offline
-      addToOfflineQueue(syncAction);
+    } catch (fatal) {
+      alert('Error inesperado al crear grupo: ' + fatal.message);
+      console.error('Error inesperado al crear grupo', fatal);
     }
   };
 
