@@ -61,7 +61,9 @@ function GrupoDetalle({ grupo, estudiantes, onInscribir, onMarcarAsistencia, onV
         ) : (
           estudiantes.map(est => (
             <li key={est.id} style={{ marginBottom: 10 }}>
-              {est.nombre} - {est.fechaNacimiento}
+              <span style={{ fontWeight: 500 }}>
+                Nombre: {est.nombre || 'Sin nombre'} | Fecha de nacimiento: {est.fechaNacimiento || 'Sin fecha'}
+              </span>
               <span style={{ marginLeft: 16 }}>
                 <label style={{ marginRight: 8 }}>
                   <input
