@@ -5,6 +5,21 @@ import ReporteAsistencia from './ReporteAsistencia';
 import './App.css';
 
 function App() {
+    // Captura errores globales en el ciclo de vida del componente (para móviles/PWA)
+    useEffect(() => {
+      window.onerror = function (msg, url, line, col, error) {
+        alert('Error global: ' + msg + ' en ' + url + ' línea ' + line);
+        console.error('Error global:', msg, url, line, col, error);
+      };
+      window.onunhandledrejection = function (event) {
+        alert('Error global promesa: ' + (event.reason && event.reason.message ? event.reason.message : event.reason));
+        console.error('Error global promesa:', event);
+      };
+      return () => {
+        window.onerror = null;
+        window.onunhandledrejection = null;
+      };
+    }, []);
   useEffect(() => {
     setupSyncOnReconnect();
   }, []);
