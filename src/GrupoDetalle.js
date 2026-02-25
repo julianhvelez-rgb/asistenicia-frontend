@@ -12,8 +12,39 @@ function GrupoDetalle({ grupo, estudiantes, onInscribir, onMarcarAsistencia, onV
       }
       setFechaNacimiento(value);
     };
-  const [nombre, setNombre] = useState('');
-  const [fechaNacimiento, setFechaNacimiento] = useState('');
+  // Persistencia en localStorage
+  const storageKey = `inscripcion_${grupo.id}`;
+  const getPersisted = () => {
+    try {
+      const data = JSON.parse(localStorage.getItem(storageKey));
+      return data || { nombre: '', fechaNacimiento: '' };
+    } catch {
+      return { nombre: '', fechaNacimiento: '' };
+    }
+  };
+  const [nombre, setNombre] = useState(getPersisted().nombre);
+  const [fechaNacimiento, setFechaNacimiento] = useState(getPersisted().fechaNacimiento);
+
+  // Guardar en localStorage al cambiar
+  const persist = (nombre, fechaNacimiento) => {
+    localStorage.setItem(storageKey, JSON.stringify({ nombre, fechaNacimiento }));
+  };
+
+  const handleNombreChange = (e) => {
+    setNombre(e.target.value);
+    persist(e.target.value, fechaNacimiento);
+  };
+  const handleFechaNacimientoChange = (e) => {
+    let value = e.target.value.replace(/[^0-9]/g, '');
+    if (value.length > 2 && value[2] !== '/') {
+      value = value.slice(0,2) + '/' + value.slice(2);
+    }
+    if (value.length > 5 && value[5] !== '/') {
+      value = value.slice(0,5) + '/' + value.slice(5);
+    }
+    setFechaNacimiento(value);
+    persist(nombre, value);
+  };
 
   const handleInscribir = (e) => {
     e.preventDefault();
@@ -24,6 +55,7 @@ function GrupoDetalle({ grupo, estudiantes, onInscribir, onMarcarAsistencia, onV
     onInscribir(grupo.id, { nombre, fechaNacimiento });
     setNombre('');
     setFechaNacimiento('');
+    localStorage.removeItem(storageKey);
   };
 
   // Estado local para reflejar asistencia visualmente
@@ -43,7 +75,7 @@ function GrupoDetalle({ grupo, estudiantes, onInscribir, onMarcarAsistencia, onV
           type="text"
           placeholder="Nombre completo"
           value={nombre}
-          onChange={e => setNombre(e.target.value)}
+          onChange={handleNombreChange}
         />
         <input
           type="text"
