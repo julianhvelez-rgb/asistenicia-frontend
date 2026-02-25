@@ -227,19 +227,25 @@ function GestionGrupos({ grupos, onCrear, onEditar, onEliminar }) {
             </label>
           ))}
         </div>
-        <div style={{ margin: '10px 0' }}>
-          <span>Hora inicio: </span>
-          <input
-            type="time"
-            value={horaInicio}
-            onChange={e => setHoraInicio(e.target.value)}
-          />
-          <span style={{ marginLeft: 10 }}>Hora fin: </span>
-          <input
-            type="time"
-            value={horaFin}
-            onChange={e => setHoraFin(e.target.value)}
-          />
+        <div style={{ margin: '10px 0', display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: 220 }}>
+          <label>
+            Hora inicio:
+            <input
+              type="time"
+              value={horaInicio}
+              onChange={e => setHoraInicio(e.target.value)}
+              style={{ display: 'block', marginTop: 2, width: '100%' }}
+            />
+          </label>
+          <label style={{ marginTop: 6 }}>
+            Hora fin:
+            <input
+              type="time"
+              value={horaFin}
+              onChange={e => setHoraFin(e.target.value)}
+              style={{ display: 'block', marginTop: 2, width: '100%' }}
+            />
+          </label>
         </div>
         <button onClick={handleCrear}>Crear</button>
       </div>
